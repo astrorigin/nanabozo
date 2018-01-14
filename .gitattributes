@@ -1,0 +1,4 @@
+*.c text eol=lf
+*.flex text eol=lf
+*.txt text eol=lf
+

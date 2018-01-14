@@ -1,0 +1,21 @@
+# nanabozo .gitignore
+
+# sub directories
+bld*
+build*
+tmp*
+
+# vi
+*.swp
+*.vim
+
+# ultra-edit
+*.prj
+*.pui
+
+# backups
+*~
+*.bak
+*.orig
+
+# vi: set fenc=utf-8 ff=unix :
