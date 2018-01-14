@@ -308,9 +308,6 @@ int main(int argc, char *argv[])
         }
         /* Arguments */
         if (strcmp(p, "-") != 0) {
-            if (!*p) {
-                stop("invalid argument ''");
-            }
             if (check_filepath(p) == 0) {
                 stop2("invalid argument '%s'", p);
             }
