@@ -188,6 +188,7 @@ size_t _q_len = 0;
 
 struct match c_context[] =
 {
+    { "?>\r\n", 4, &c_end, NULL },
     { "?>\n",   3, &c_end, NULL },
     { "?>",     2, &c_end, NULL },
     { "/*",     2, &c_ml_comment_start, NULL },
@@ -203,6 +204,7 @@ struct match html_context[] =
     { "<script",    8, &script_start, NULL },
     { "<SCRIPT",    8, &script_start, NULL },
     { "<!--",       4, &html_comment_start, NULL },
+    { "<?\r\n",     4, &c_start, NULL },
     { "<?\n",       3, &c_start, NULL },
     { "<?=",        3, &c_print_start, NULL },
     { "<?%",        3, &c_print_format_start, NULL },
