@@ -166,6 +166,7 @@ int _no_comments = 0;
 #ifndef _MSC_VER
 FILE *_f = NULL; /* file for open_memstream */
 #else
+char *_b;
 size_t _b_len = 0; /* length of buffer */
 #endif
 char *_buf = NULL;
@@ -407,6 +408,7 @@ int main(int argc, char *argv[])
     }
     _bufsz = PAGESIZE;
     _buf[0] = '\0';
+    _b = _buf;
 #endif
     /* start scanning */
     proceed();
@@ -520,10 +522,9 @@ int check_filepath( const char* fpath )
 #ifndef _MSC_VER
 void bufwrite( const char *s, const size_t len )
 {
-    if (!_f) {
-        _f = open_memstream(&_buf, &_bufsz);
-    }
-    if (fwrite(s, sizeof(char), len, _f) != len) {
+    if ((!_f && (_f = open_memstream(&_buf, &_bufsz)) == NULL)
+        || fwrite(s, sizeof(char), len, _f) != len)
+    {
         stop("no memory");
     }
 }
@@ -536,9 +537,11 @@ void bufwrite( const char *s, const size_t len )
             stop("no memory");
         }
         _bufsz = sz;
+        _b = _buf + _b_len;
     }
     _b_len += len;
-    strncat(_buf, s, len);
+    strncat(_b, s, len);
+    _b += len;
 }
 #endif
 void bufout( void )
@@ -595,33 +598,33 @@ void bufout( void )
         }
 #ifndef _MSC_VER
         _bufsz = 0;
-#endif
-    }
-    /* reset buffer */
-#ifndef _MSC_VER
-    if (_buf) {
 #else
-    if (_b_len) {
-#endif
+        /* reset buffer */
         free(_buf);
         _buf = NULL;
-#ifdef _MSC_VER
         if ((_buf = malloc(PAGESIZE)) == NULL) {
             stop("no memory");
         }
         _bufsz = PAGESIZE;
         _buf[0] = '\0';
         _b_len = 0;
+        _b = _buf;
 #endif
     }
+#ifndef _MSC_VER
+    /* reset buffer */
+    if (_buf) {
+        free(_buf);
+        _buf = NULL;
+    }
+#endif
 }
 #ifndef _MSC_VER
 void bufput( const int c )
 {
-    if (!_f) {
-        _f = open_memstream(&_buf, &_bufsz);
-    }
-    if (fputc(c, _f) != c) {
+    if ((!_f && (_f = open_memstream(&_buf, &_bufsz)) == NULL)
+        || fputc(c, _f) != c)
+    {
         stop("no memory");
     }
 }
@@ -635,10 +638,12 @@ void bufput( const int c )
             stop("no memory");
         }
         _bufsz = sz;
+        _b = _buf + _b_len;
     }
     _b_len++;
     tmp[0] = c;
-    strcat(_buf, tmp);
+    strcat(_b, tmp);
+    _b++;
 }
 #endif
 void write( const char *s, const size_t len )
