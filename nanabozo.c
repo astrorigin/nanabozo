@@ -124,6 +124,9 @@ void script_ml_comment_start( struct match *mt );
 void script_sl_comment_start( struct match *mt );
 void script_squote_start( struct match *mt );
 void script_start( struct match *mt );
+void style_end( struct match *mt );
+void style_ml_comment_start( struct match *mt );
+void style_start( struct match *mt );
 void tag_dquote_start( struct match *mt );
 void tag_end( struct match *mt );
 void tag_squote_start( struct match *mt );
@@ -203,6 +206,8 @@ struct match html_context[] =
 {
     { "<script",    8, &script_start, NULL },
     { "<SCRIPT",    8, &script_start, NULL },
+    { "<style",     7, &style_start, NULL },
+    { "<STYLE",     7, &style_start, NULL },
     { "<!--",       4, &html_comment_start, NULL },
     { "<?\r\n",     4, &c_start, NULL },
     { "<?\n",       3, &c_start, NULL },
@@ -221,6 +226,14 @@ struct match script_context[] =
     { "//",         2, &script_sl_comment_start, NULL },
     { "\"",         1, &script_dquote_start, NULL },
     { "'",          1, &script_squote_start, NULL },
+    { NULL, 0, NULL, NULL }
+};
+
+struct match style_context[] =
+{
+    { "</style>",   8, &style_end, NULL },
+    { "</STYLE>",   8, &style_end, NULL },
+    { "/*",         2, &style_ml_comment_start, NULL },
     { NULL, 0, NULL, NULL }
 };
 
@@ -463,6 +476,7 @@ size_t read_input( void )
     reset_context(c_context);
     reset_context(html_context);
     reset_context(script_context);
+    reset_context(style_context);
     reset_context(tag_context);
     /* increment line count */
     _lineno++;
@@ -815,6 +829,29 @@ void script_start( struct match *mt )
     _q += mt->len;
     _q_len -= mt->len;
     _context = script_context;
+    _context_fallback = &html_fallback;
+}
+void style_end( struct match *mt )
+{
+    bufwrite(_q, mt->len);
+    _q += mt->len;
+    _q_len -= mt->len;
+    _context = html_context;
+    _context_fallback = &html_fallback;
+}
+void style_ml_comment_start( struct match* mt )
+{
+    bufwrite(_q, mt->len);
+    _q += mt->len;
+    _q_len -= mt->len;
+    eat_script_ml_comment();
+}
+void style_start( struct match *mt )
+{
+    bufwrite(_q, mt->len);
+    _q += mt->len;
+    _q_len -= mt->len;
+    _context = style_context;
     _context_fallback = &html_fallback;
 }
 void tag_dquote_start( struct match *mt )
