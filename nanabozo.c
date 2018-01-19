@@ -96,6 +96,7 @@ int cursor( void );
 void c_fallback( const char *eol );
 void html_fallback( const char *eol );
 
+void bad_tag_start( struct match *mt );
 void c_dquote_start( struct match *mt );
 void c_end( struct match *mt );
 void c_macro_start( struct match *mt );
@@ -214,6 +215,8 @@ struct match html_context[] =
     { "<?=",        3, &c_print_start, NULL },
     { "<?%",        3, &c_print_format_start, NULL },
     { "<?",         2, &c_start, NULL },
+    { "< ",         2, &bad_tag_start, NULL },
+    { "<\n",        2, &bad_tag_start, NULL },
     { "<",          1, &tag_start, NULL },
     { NULL, 0, NULL, NULL }
 };
@@ -697,6 +700,10 @@ void html_fallback( const char *eol )
     bufwrite(_q, sz);
     _q += sz;
     _q_len -= sz;
+}
+void bad_tag_start( struct match *mt )
+{
+    stop("incorrect tag '< '");
 }
 void c_dquote_start( struct match *mt )
 {
