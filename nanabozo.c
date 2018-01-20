@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
     }
     else if (*comment) {
         /* print user comment */
-        fprintf(stdout, "%s\n", comment);
+        fprintf(stdout, "/*\n%s\n*/\n", comment);
     }
     if (print_arg == 0) {
         /* define print(x) */
