@@ -164,8 +164,8 @@ int _no_comments = 0;
 #define SPECIALCHAR \
   ".-/\\" /* underscore is in NONDIGIT */
 
-/* additional chars for c++ identifiers */
-#define CPPSPECIAL ":"
+/* additional chars for c++ */
+#define CPPSPECIAL ":.-<>"
 
 /* buffer for html output */
 #ifndef _MSC_VER
