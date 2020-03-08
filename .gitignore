@@ -1,5 +1,7 @@
 # nanabozo .gitignore
 
+nanabozo
+
 # sub directories
 bld*
 build*
