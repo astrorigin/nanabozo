@@ -29,11 +29,5 @@ int main(void) {
 <?
     return 0;
 } // end main
-
-/**
- *  Beware of invisible chars stuck at end of file.
- */
 ?>
-
-
 
