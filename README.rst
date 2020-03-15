@@ -130,7 +130,13 @@ In a hurry, you can try something like::
 
 More options
 ============
-``nanabozo`` has four other options that can be useful for advanced applications.
+``nanabozo`` has options to accomodate for different workflows.
+
+**The option --main** can be used to include a basic, main function
+definition wrapping around your script.
+
+**The option --html** can be used to send a basic Content-Type HTTP header
+(text/html, charset UTF-8) before any other output.
 
 **The option -a** can be used to pass a string to *prepend* to the content of
 the CHTML script.
@@ -142,6 +148,8 @@ Our trivial example could be rewritten without the definition of
 the ``main()`` function. In ``bash``, it could be like this::
 
     nanabozo -a $'int main(void) {\n' -z $'\n\treturn 0;\n}' helloworld.php helloworld.c
+    # note that is equivalent to:
+    nanabozo --main helloworld.php helloworld.c
 
 You could however make things even worse::
 
@@ -161,7 +169,9 @@ A command such as::
 will not have ``stdio.h`` included, nor ``print`` defined. You have to take care of
 them on your side.
 
-**The option -h** or **--help** prints some information and exits.
+**The option -v** or **--version** prints version information and exits.
+
+**The option -h** or **--help** prints usage information and exits.
 
 Limitations and bugs
 ====================
