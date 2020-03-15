@@ -1,6 +1,8 @@
 <?
-/*
- *  nanabozo -p 'ms.input' -f 'ms.inputf' ...
+/**
+ *  Buffered output example in C++.
+ *  Compile with:
+ *  nanabozo -p 'ms.input' -f 'ms.inputf' buffered_output.php
  */
 
 #include <iostream>

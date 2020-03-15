@@ -18,6 +18,7 @@
 */
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,6 +55,8 @@ const char _usage[] =
 "Usage: nanabozo [OPTIONS] [(infile|-) [(outfile|-)]]\n"
 "\n"
 "Options:\n"
+"  --main           Include boilerplate main function.\n"
+"  --html           Send content-type header (text/html, charset utf-8).\n"
 "  -b               Omit begin/end comments in output.\n"
 "  -c <header>      Override default comment header.\n"
 "                   Pass an empty string to disable comment header.\n"
@@ -169,12 +172,24 @@ size_t _lineno = 0;
 char *_m_print = "print";
 char *_m_printf = "printf";
 int _no_comments = 0;
+int _do_mainfunc = 0;
+int _do_send_headers = 0;
+int _reached_eof = 0;
 
 #define _M_PRINT_DEFINE \
   "#include <stdio.h>\n#define print(x) fputs(x, stdout)\n\n"
 
 #define _M_PRINTF_DEFINE \
   "#include <stdio.h>\n\n"
+
+#define MAINFUNC_START \
+    "int main(void) {\n"
+
+#define MAINFUNC_STOP \
+    "\nreturn 0; } /* end main function */\n"
+
+#define CONTENTTYPE_HTML \
+    "Content-Type: text/html; charset=utf-8"
 
 /*
  *  Altogether, NONDIGIT DIGIT SPECIALCHAR correspond to the
@@ -347,6 +362,14 @@ int main(int argc, char *argv[])
                 printf_arg = 1;
                 continue;
             }
+            else if (!strcmp(p, "--main")) {
+                _do_mainfunc = 1;
+                continue;
+            }
+            else if (!strcmp(p, "--html")) {
+                _do_send_headers = 1;
+                continue;
+            }
             else if (!strcmp(p, "-v") || !strcmp(p, "--version")) {
                 if (fputs(_version, stdout) == EOF) {
                     stop("lost stdout");
@@ -457,6 +480,17 @@ int main(int argc, char *argv[])
         /* print prefix string */
         fprintf(stdout, "%s\n", prefix);
     }
+    if (_do_mainfunc) {
+        if (fputs(MAINFUNC_START, stdout) == EOF) {
+            stop("lost stdout");
+        }
+    }
+    if (_do_send_headers) {
+        if (fprintf(stdout, "%s(\"%s\\n\\n\");\n",
+                    _m_print, CONTENTTYPE_HTML) < 0) {
+            stop("lost stdout");
+        }
+    }
 #ifdef _MSC_VER
     /* prepare buffer */
     if ((_buf = malloc(PAGESIZE)) == NULL) {
@@ -468,7 +502,14 @@ int main(int argc, char *argv[])
 #endif
     /* start scanning */
     proceed();
+    /* send the last bits */
+    _reached_eof = 1;
     bufout();
+    if (_do_mainfunc) {
+        if (fputs(MAINFUNC_STOP, stdout) == EOF) {
+            stop("lost stdout");
+        }
+    }
     if (suffix && *suffix) {
         /* print suffix string */
         fprintf(stdout, "%s\n", suffix);
@@ -613,8 +654,20 @@ void bufout( void )
 #else
     if (_b_len) {
 #endif
-        /* transfer buffer to stdout */
         char *p = _buf;
+        /* dont send trailing spaces */
+        if (_reached_eof) {
+            while (*p && isspace(*p)) {
+                ++p;
+            }
+            if (!*p) {
+                goto bufout_done;
+            }
+            else {
+                p = _buf;
+            }
+        }
+        /* transfer buffer to stdout */
         fprintf(stdout, "\n%s(\"", _m_print);
         for (; *p; p++) {
             switch (*p) {
@@ -653,6 +706,7 @@ void bufout( void )
         else {
             write(");\n", 3);
         }
+    bufout_done:
 #ifndef _MSC_VER
         _bufsz = 0;
 #else
