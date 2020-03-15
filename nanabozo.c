@@ -34,6 +34,10 @@
 #endif
 #endif
 
+#ifndef VERSION_STR
+#define VERSION_STR "20200315-anoxic-aphid"
+#endif
+
 const char _usage[] =
 "\n"
 "nanabozo - a tool for CHTML script-coding\n"
@@ -63,7 +67,8 @@ const char _usage[] =
 "  -p <func>        Override function 'print(x)'.\n"
 "                   By default, 'print(x)' is a macro for 'fputs(x, stdout)'.\n"
 "  -f <func>        Override function 'printf(x, ...)'.\n"
-"  -h, --help       Print some information and exit.\n"
+"  -v, --version    Print version information and exit.\n"
+"  -h, --help       Print usage information and exit.\n"
 "\n"
 "Arguments:\n"
 "  infile           Input file ('-' for stdin, default).\n"
@@ -71,6 +76,27 @@ const char _usage[] =
 "\n"
 "For more information, see https://astrorigin.com/nanabozo\n"
 "\n";
+
+const char _version[] =
+"\n"
+"nanabozo - a tool for CHTML script-coding (" VERSION_STR ")\n"
+"\n"
+"    Copyright (C) 2018-2020 Stanislas Marquis <stan@astrorigin.com>.\n"
+"\n"
+"    This program is free software: you can redistribute it and/or modify\n"
+"    it under the terms of the GNU General Public License as published by\n"
+"    the Free Software Foundation, either version 3 of the License, or\n"
+"    (at your option) any later version.\n"
+"\n"
+"    See the GNU General Public License for more details.\n"
+"\n"
+"Type 'nanabozo --help' for more information.\n"
+"\n";
+
+#define COMPILED_WITH \
+    "Compiled " __DATE__ " " __TIME__ " with:\n" \
+    "    INPUTSIZE=(%d)\n" \
+    "\n"
 
 struct match
 {
@@ -320,6 +346,15 @@ int main(int argc, char *argv[])
                 _m_printf = argv[i];
                 printf_arg = 1;
                 continue;
+            }
+            else if (!strcmp(p, "-v") || !strcmp(p, "--version")) {
+                if (fputs(_version, stdout) == EOF) {
+                    stop("lost stdout");
+                }
+                if (fprintf(stdout, COMPILED_WITH, INPUTSIZE) < 0) {
+                    stop("lost stdout");
+                }
+                exit(EXIT_SUCCESS);
             }
             else if (!strcmp(p, "-h") || !strcmp(p, "--help")) {
                 if (fputs(_usage, stdout) == EOF) {
