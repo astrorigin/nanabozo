@@ -5,7 +5,7 @@ CC = cc
 BINDIR = $(HOME)/bin
 INPUTSIZE = 512
 
-$(TARGET):
+$(TARGET): nanabozo.c
 	$(CC) -Wall -DINPUTSIZE=$(INPUTSIZE) -o $@ nanabozo.c
 
 $(BINDIR):
