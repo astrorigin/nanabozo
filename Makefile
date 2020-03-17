@@ -2,25 +2,27 @@
 
 TARGET = nanabozo
 CC = cc
-BINDIR = $(HOME)/bin
+OPTS = -Wall -O3
+INSTALLDIR = $(HOME)/bin
 INPUTSIZE = 512
 
 $(TARGET): nanabozo.c
-	$(CC) -Wall -DINPUTSIZE=$(INPUTSIZE) -o $@ nanabozo.c
+	$(CC) $(OPTS) -DINPUTSIZE=$(INPUTSIZE) -o $@ nanabozo.c
 
-$(BINDIR):
+$(INSTALLDIR):
 	mkdir -p $@
 
-$(BINDIR)/$(TARGET): $(BINDIR) $(TARGET)
-	cp -f $(TARGET) $(BINDIR)
+$(INSTALLDIR)/$(TARGET): $(INSTALLDIR) $(TARGET)
+	cp -f $(TARGET) $(INSTALLDIR)
 
-.PHONY:
+.PHONY: clean install uninstall
+
 clean:
 	rm -f $(TARGET)
 
-install: $(BINDIR)/$(TARGET)
+install: $(INSTALLDIR)/$(TARGET)
 
 uninstall:
-	rm -f $(BINDIR)/$(TARGET)
+	rm -f $(INSTALLDIR)/$(TARGET)
 
 # vi: sw=4 ts=4 sts=4 noet ai
