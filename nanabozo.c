@@ -397,6 +397,7 @@ int main(int argc, char *argv[])
             {
                 _m_printf = optarg;
                 _printf_given = 1;
+                break;
             }
         case 'v':
             {
