@@ -19,6 +19,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <getopt.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,10 +37,10 @@
 #endif
 
 #ifndef VERSION_STR
-#define VERSION_STR "20200315-anoxic-aphid"
+#define VERSION_STR "20200318-bumpy-blackbird"
 #endif
 
-const char _usage[] =
+static const char _usage[] =
 "\n"
 "nanabozo - a tool for CHTML script-coding\n"
 "\n"
@@ -80,7 +81,7 @@ const char _usage[] =
 "For more information, see https://astrorigin.com/nanabozo\n"
 "\n";
 
-const char _version[] =
+static const char _version[] =
 "\n"
 "nanabozo - a tool for CHTML script-coding (" VERSION_STR ")\n"
 "\n"
@@ -167,13 +168,40 @@ void tag_start( struct match *mt );
 void stop( const char *msg );
 void stop2( const char *fmt, ... );
 
+/* options */
+int _do_mainfunc = 0;   /* option --main */
+int _do_send_headers = 0;   /* option --html */
+char *_m_comment = NULL;    /* option --comment */
+char *_m_prefix = NULL;     /* option --prepend */
+char *_m_print = NULL;  /* option --print */
+char *_m_printf = NULL; /* option --printf */
+char *_m_suffix = NULL; /* option --append */
+int _no_comments = 0;   /* option --no-comments */
+int _print_given = 0;
+int _printf_given = 0;
+/* arguments */
+char *_m_input_file = NULL;
+char *_m_output_file = NULL;
+
+static struct option _long_options[] =
+{
+    {"append",      required_argument,  0,  'z'},
+    {"comment",     required_argument,  0,  'c'},
+    {"help",        no_argument,        0,  'h'},
+    {"html",        no_argument,        0,  't'},
+    {"main",        no_argument,        0,  'm'},
+    {"no-comments", no_argument,        0,  'n'},
+    {"prepend",     required_argument,  0,  'a'},
+    {"print",       required_argument,  0,  'p'},
+    {"printf",      required_argument,  0,  'f'},
+    {"version",     no_argument,        0,  'v'},
+    {0, 0, 0, 0}
+};
+
+#define SHORT_OPTIONS "z:c:htmna:p:f:v"
+
 /* misc parameters */
 size_t _lineno = 0;
-char *_m_print = "print";
-char *_m_printf = "printf";
-int _no_comments = 0;
-int _do_mainfunc = 0;
-int _do_send_headers = 0;
 int _reached_eof = 0;
 
 #ifndef _MSC_VER
@@ -191,10 +219,10 @@ int _reached_eof = 0;
 #endif
 
 #define _M_PRINT_DEFINE \
-  "#include <stdio.h>\n#define print(x) fputs(x, stdout)\n\n"
+    "#include <stdio.h>\n#define print(x) fputs(x, stdout)\n\n"
 
 #define _M_PRINTF_DEFINE \
-  "#include <stdio.h>\n\n"
+    "#include <stdio.h>\n\n"
 
 #define MAINFUNC_START \
     "int main(void) {\n"
@@ -212,13 +240,13 @@ int _reached_eof = 0;
  */
 
 #define NONDIGIT \
-  "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 #define DIGIT \
-  "0123456789"
+    "0123456789"
 
 #define SPECIALCHAR \
-  ".-/\\" /* underscore is in NONDIGIT */
+    ".-/\\" /* underscore is in NONDIGIT */
 
 /* additional chars for c++ */
 #define CPPSPECIAL ":.-<>"
@@ -247,7 +275,7 @@ size_t _q_len = 0;
  *  Longer matches must be searched first.
  */
 
-struct match c_context[] =
+static struct match c_context[] =
 {
     { "?>\r\n", 4, &c_end, NULL },
     { "?>\n",   3, &c_end, NULL },
@@ -260,7 +288,7 @@ struct match c_context[] =
     { NULL, 0, NULL, NULL }
 };
 
-struct match html_context[] =
+static struct match html_context[] =
 {
     { "<script",    8, &script_start, NULL },
     { "<SCRIPT",    8, &script_start, NULL },
@@ -279,7 +307,7 @@ struct match html_context[] =
     { NULL, 0, NULL, NULL }
 };
 
-struct match script_context[] =
+static struct match script_context[] =
 {
     { "</script>",  9, &script_end, NULL },
     { "</SCRIPT>",  9, &script_end, NULL },
@@ -290,7 +318,7 @@ struct match script_context[] =
     { NULL, 0, NULL, NULL }
 };
 
-struct match style_context[] =
+static struct match style_context[] =
 {
     { "</style>",   8, &style_end, NULL },
     { "</STYLE>",   8, &style_end, NULL },
@@ -298,7 +326,7 @@ struct match style_context[] =
     { NULL, 0, NULL, NULL }
 };
 
-struct match tag_context[] =
+static struct match tag_context[] =
 {
     { "\"",   1, &tag_dquote_start, NULL },
     { "'",    1, &tag_squote_start, NULL },
@@ -313,195 +341,130 @@ void (*_context_fallback)( const char* eol ) = &html_fallback;
 
 int main(int argc, char *argv[])
 {
-    int i;
-    char *comment = NULL;
-    char *prefix = NULL;
-    char *suffix = NULL;
-    int print_arg = 0;
-    int printf_arg = 0;
-    int input_file_arg = 0;
-    char *input_file = NULL;
-    int output_file_arg = 0;
-    char *output_file = NULL;
-    int endof_options = 0;
-
-    for (i = 1; i < argc; ++i) {
-        char* p = argv[i];
-        if (endof_options == 0) {
-            /* Options */
-            if (!strcmp(p, "-n") || !strcmp(p, "--no-comments")) {
-                _no_comments = 1;
-                continue;
+    for (;;) {
+        int option_index;
+        int c = getopt_long(argc, argv,
+                SHORT_OPTIONS, _long_options, &option_index);
+        if (c == -1) {
+            break;
+        }
+        /* "z:c:htmna:p:f:v" */
+        switch (c) {
+        case 'z':
+            {
+                _m_suffix = optarg;
+                break;
             }
-            else if (!strcmp(p, "-c")) {
-                if (++i >= argc) {
-                    stop("missing argument after option '-c'");
-                }
-                comment = argv[i];
-                continue;
+        case 'c':
+            {
+                _m_comment = optarg;
+                break;
             }
-            else if (!strncmp(p, "--comment", 9)) {
-                char *eq = strchr(p, '=');
-                if (eq) {
-                    comment = ++eq;
-                }
-                continue;
-            }
-            else if (!strcmp(p, "-a")) {
-                if (++i >= argc) {
-                    stop("missing argument after option '-a'");
-                }
-                prefix = argv[i];
-                continue;
-            }
-            else if (!strncmp(p, "--prepend", 9)) {
-                char *eq = strchr(p, '=');
-                if (eq) {
-                    prefix = ++eq;
-                }
-                else {
-                    stop("missing argument after option '--prepend'");
-                }
-                continue;
-            }
-            else if (!strcmp(p, "-z")) {
-                if (++i >= argc) {
-                    stop("missing argument after option '-z'");
-                }
-                suffix = argv[i];
-                continue;
-            }
-            else if (!strncmp(p, "--append", 8)) {
-                char *eq = strchr(p, '=');
-                if (eq) {
-                    suffix = ++eq;
-                }
-                else {
-                    stop("missing argument after option '--append'");
-                }
-                continue;
-            }
-            else if (!strcmp(p, "-f")) {
-                if (++i >= argc) {
-                    stop("missing argument after option '-f'");
-                }
-                if (check_identifier(argv[i]) == 0) {
-                    stop2("invalid identifier for option '-f': '%s'", argv[i]);
-                }
-                _m_printf = argv[i];
-                printf_arg = 1;
-                continue;
-            }
-            else if (!strncmp(p, "--printf", 8)) {
-                char *eq = strchr(p, '=');
-                if (eq && *(++eq)) {
-                    _m_printf = eq;
-                    printf_arg = 1;
-                }
-                else {
-                    stop("missing argument after option '--printf'");
-                }
-                continue;
-            }
-            else if (!strcmp(p, "-p")) {
-                if (++i >= argc) {
-                    stop("missing argument after option '-p'");
-                }
-                if (check_identifier(argv[i]) == 0) {
-                    stop2("invalid identifier for option '-p': '%s'", argv[i]);
-                }
-                _m_print = argv[i];
-                print_arg = 1;
-                continue;
-            }
-            else if (!strncmp(p, "--print", 7)) {
-                char *eq = strchr(p, '=');
-                if (eq && *(++eq)) {
-                    _m_print = eq;
-                    print_arg = 1;
-                }
-                else {
-                    stop("missing argument after option '--print'");
-                }
-                continue;
-            }
-            else if (!strcmp(p, "-m") || !strcmp(p, "--main")) {
-                _do_mainfunc = 1;
-                continue;
-            }
-            else if (!strcmp(p, "-t") || !strcmp(p, "--html")) {
-                _do_send_headers = 1;
-                continue;
-            }
-            else if (!strcmp(p, "-v") || !strcmp(p, "--version")) {
-                if (fputs(_version, stdout) == EOF) {
-                    stop("lost stdout");
-                }
-                if (fprintf(stdout, COMPILED_WITH, INPUTSIZE) < 0) {
-                    stop("lost stdout");
-                }
-                exit(EXIT_SUCCESS);
-            }
-            else if (!strcmp(p, "-h") || !strcmp(p, "--help")) {
+        case 'h':
+            {
                 if (fputs(_usage, stdout) == EOF) {
                     stop("lost stdout");
                 }
                 exit(EXIT_SUCCESS);
             }
+        case 't':
+            {
+                _do_send_headers = 1;
+                break;
+            }
+        case 'm':
+            {
+                _do_mainfunc = 1;
+                break;
+            }
+        case 'n':
+            {
+                _no_comments = 1;
+                break;
+            }
+        case 'a':
+            {
+                _m_prefix = optarg;
+                break;
+            }
+        case 'p':
+            {
+                _m_print = optarg;
+                _print_given = 1;
+                break;
+            }
+        case 'f':
+            {
+                _m_printf = optarg;
+                _printf_given = 1;
+            }
+        case 'v':
+            {
+                if (fputs(_version, stdout) == EOF
+                    || fprintf(stdout, COMPILED_WITH, INPUTSIZE) < 0)
+                {
+                    stop("lost stdout");
+                }
+                exit(EXIT_SUCCESS);
+            }
+        default:
+            /* error raised by getopt */
+            exit(EXIT_FAILURE);
         }
-        /* Arguments */
-        if (strcmp(p, "-") != 0) {
-            if (check_filepath(p) == 0) {
-                stop2("invalid argument '%s'", p);
-            }
-            if (!input_file_arg) {
-                input_file = p;
-                input_file_arg = 1;
-            }
-            else if (!output_file_arg) {
-                output_file = p;
-                output_file_arg = 1;
-            }
-            else {
-                stop("too many arguments");
-            }
-            if (endof_options == 0) {
-                endof_options = 1;
-            }
+    } /* end getopt */
+
+    /* get arguments */
+    while (optind < argc) {
+        if (_m_input_file == NULL) {
+            _m_input_file = argv[optind++];
             continue;
         }
-        else /* arg == '-' */
-        {
-            if (!input_file_arg) {
-                /* reading from stdin */
-                input_file_arg = 1;
-            }
-            else if (!output_file_arg) {
-                /* writing to stdout */
-                output_file_arg = 1;
-            }
-            else {
-                stop("too many arguments");
-            }
-            if (endof_options == 0) {
-                endof_options = 1;
-            }
+        if (_m_output_file == NULL) {
+            _m_output_file = argv[optind++];
             continue;
         }
+        stop("too many arguments");
     }
-    if (input_file) {
-        /* open input file */
-        if (freopen(input_file, "r", stdin) == NULL) {
-            stop2("unable to open '%s' for reading", input_file);
+
+    /* check arguments */
+    if (_m_input_file != NULL) {
+        if (!strcmp(_m_input_file, "-")) {
+            _m_input_file = NULL;
+        }
+        else if (check_filepath(_m_input_file) == 0) {
+            stop2("invalid argument '%s'", _m_input_file);
         }
     }
-    if (output_file) {
-        /* open output file */
-        if (freopen(output_file, "w", stdout) == NULL) {
-            stop2("unable to open '%s' for writing", output_file);
+    if (_m_output_file != NULL) {
+        if (!strcmp(_m_output_file, "-")) {
+            _m_output_file = NULL;
+        }
+        else if (check_filepath(_m_output_file) == 0) {
+            stop2("invalid argument '%s'", _m_output_file);
         }
     }
-    if (comment == NULL) {
+    /* open files */
+    if (_m_input_file != NULL) {
+        if (freopen(_m_input_file, "r", stdin) == NULL) {
+            stop2("unable to open '%s' for reading", _m_input_file);
+        }
+    }
+    if (_m_output_file != NULL) {
+        if (freopen(_m_output_file, "w", stdout) == NULL) {
+            stop2("unable to open '%s' for writing", _m_output_file);
+        }
+    }
+    /* check we got function names */
+    if (_m_print == NULL) {
+        _m_print = "print";
+    }
+    if (_m_printf == NULL) {
+        _m_printf = "printf";
+    }
+
+    /* start */
+
+    if (_m_comment == NULL) {
         /* print default comment */
         char tmp[90];
         time_t t = time(NULL);
@@ -510,25 +473,25 @@ int main(int argc, char *argv[])
             stop("lost stdout");
         }
     }
-    else if (*comment) {
+    else if (*_m_comment) {
         /* print user comment */
-        fprintf(stdout, "/*\n%s\n*/\n", comment);
+        fprintf(stdout, "/*\n%s\n*/\n", _m_comment);
     }
-    if (print_arg == 0) {
+    if (_print_given == 0) {
         /* define print(x) */
         if (fputs(_M_PRINT_DEFINE, stdout) == EOF) {
             stop("lost stdout");
         }
     }
-    else if (printf_arg == 0) {
+    else if (_printf_given == 0) {
         /* need stdio.h */
         if (fputs(_M_PRINTF_DEFINE, stdout) == EOF) {
             stop("lost stdout");
         }
     }
-    if (prefix && *prefix) {
+    if (_m_prefix && *_m_prefix) {
         /* print prefix string */
-        fprintf(stdout, "%s\n", prefix);
+        fprintf(stdout, "%s\n", _m_prefix);
     }
     if (_do_mainfunc) {
         if (fputs(MAINFUNC_START, stdout) == EOF) {
@@ -560,9 +523,9 @@ int main(int argc, char *argv[])
             stop("lost stdout");
         }
     }
-    if (suffix && *suffix) {
+    if (_m_suffix && *_m_suffix) {
         /* print suffix string */
-        fprintf(stdout, "%s\n", suffix);
+        fprintf(stdout, "%s\n", _m_suffix);
     }
     return EXIT_SUCCESS;
 }
