@@ -1,6 +1,7 @@
 # nanabozo .gitignore
 
 nanabozo
+nanabozo.1.gz
 
 # sub directories
 bld*
@@ -20,4 +21,3 @@ tmp*
 *.bak
 *.orig
 
-# vi: set fenc=utf-8 ff=unix :
