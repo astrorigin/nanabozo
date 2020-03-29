@@ -1,10 +1,10 @@
 .TH NANABOZO 1 2020-03-26 "version 0.1-alpha" "User Commands"
 .SH NAME
-nanabozo - a tool for CHTML script-coding
+nanabozo \- a tool for CHTML script\-coding
 .SH SYNOPSIS
-\f[B]nanabozo\f[] [\f[I]OPTIONS\f[]...] [(\f[I]inputfile\f[]|-) [(\f[I]outputfile\f[]|-)]]
+\f[B]nanabozo\f[] [\f[I]OPTIONS\f[]...] [(\f[I]inputfile\f[]|\-) [(\f[I]outputfile\f[]|\-)]]
 .SH DESCRIPTION
-\f[B]nanabozo\f[] is a command-line application that translates \f[I]CHTML
+\f[B]nanabozo\f[] is a command\-line application that translates \f[I]CHTML
 scripts\f[] into pure C code. In other terms, it lets you mix HTML (or
 equivalent) with C/C++, like you would with PHP.
 .SH OPTIONS
@@ -12,10 +12,10 @@ equivalent) with C/C++, like you would with PHP.
 \f[B]\-m\f[], \f[B]\-\-main\f[]
 Turn input into the body of an implicit main function.
 .TP
-\f[B]-t\f[], \f[B]--html\f[]
+\f[B]-t\f[], \f[B]\-\-html\f[]
 Print content-type header (text/html, charset utf-8).
 .TP
-\f[B]-n\f[], \f[B]--no-comments\f[]
+\f[B]-n\f[], \f[B]\-\-no\-comments\f[]
 Omit all begin/end comments in output.
 .TP
 \f[B]\-c\f[] \f[I]<comment>\f[], \f[B]\-\-comment\f[]=\f[I]<comment>\f[]
@@ -62,7 +62,7 @@ Here is a simple CGI example:
 int main(void) {
     char *world = "World";
     /* Headers */
-    print("Content-Type: text/html; charset=utf-8\\n\\n");
+    print("Content\-Type: text/html; charset=utf\-8\\n\\n");
 ?>
 <html>
 <head>
@@ -94,7 +94,7 @@ Now let's examine what hellowrld.c looks like.
  */
 .fi
 .PP
-That is an informational, self-explanatory comment.
+That is an informational, self\-explanatory comment.
 You can disable that comment header with \f[I]the option \-c\f[], passing it
 an empty string (\-c ""), or have your own comment instead if you want
 (\-c "$(cat license.txt)").
@@ -115,7 +115,7 @@ another CGI application.
 int main(void) {
     char *world = "World";
     /* Headers */
-    print("Content-Type: text/html; charset utf-8\\n\\n");
+    print("Content\-Type: text/html; charset utf\-8\\n\\n");
 /* END C (line 8) */
 .fi
 .PP
@@ -178,7 +178,7 @@ You can compile helloworld.c and your CGI application is ready.
 In a hurry, you can try something like:
 .IP
 .nfH
-nanabozo helloworld.php | gcc -x c -o helloworld.cgi -
+nanabozo helloworld.php | gcc \-x c \-o helloworld.cgi \-
 .fi
 .SS More options
 .PP
@@ -187,8 +187,8 @@ nanabozo has options to accomodate for different workflows.
 \f[I]The option \-m\f[] can be used to include a basic, main function
 definition wrapping around your script.
 .PP
-\f[I]The option \-t\f[] can be used to send a basic Content-Type header
-(text/html, charset UTF-8) before any other output.
+\f[I]The option \-t\f[] can be used to send a basic Content\-Type header
+(text/html, charset UTF\-8) before any other output.
 .PP
 \f[I]The option \-a\f[] can be used to pass a string to prepend to the
 content of the script.
@@ -200,15 +200,15 @@ Our simple example could be rewritten without the definition of the
 main() function. In bash, you could:
 .IP
 .nf
-nanabozo -a $'int main(void) {\\n' -z $'\n\treturn 0;\\n}' helloworld.php helloworld.c
+nanabozo \-a $'int main(void) {\\n' \-z $'\n\treturn 0;\\n}' helloworld.php helloworld.c
 # note that is equivalent to:
-nanabozo --main helloworld.php helloworld.c
+nanabozo \-\-main helloworld.php helloworld.c
 .fi
 .PP
 You could however make things even worse:
 .IP
 .nf
-< helloworld.php nanabozo -a "$(cat myfile .h myfile.c)" > helloworld.c
+< helloworld.php nanabozo \-a "$(cat myfile .h myfile.c)" > helloworld.c
 .fi
 .PP
 \f[I]The option \-p\f[] can be used to pass an alternative function name to
@@ -221,7 +221,7 @@ And if you replace both print and printf, stdio.h will not be included.
 A command such as:
 .IP
 .nf
-nanabozo -p print -f printf helloworld.php helloworld.c
+nanabozo \-p print \-f printf helloworld.php helloworld.c
 .fi
 .PP
 will not have stdio.h included, nor print defined. You have to take care of

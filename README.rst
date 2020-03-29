@@ -3,12 +3,8 @@
 ==========
 
 ``nanabozo`` is a command-line application that translates *CHTML scripts*
-into pure C code. In other therms, it lets you mix HTML (or equivalent)
+into pure C code. In other terms, it lets you mix HTML (or equivalent)
 with C/C++, like you would with PHP.
-
-Download
-========
-The source code is found on Github: https://github.com/astrorigin/nanabozo
 
 First CGI example
 =================
@@ -122,10 +118,10 @@ More options
 ============
 ``nanabozo`` has options to accomodate for different workflows.
 
-**The option --main** can be used to include a basic, main function
+**The option -m** can be used to include a basic, main function
 definition wrapping around your script.
 
-**The option --html** can be used to send a basic Content-Type HTTP header
+**The option -t** can be used to send a basic Content-Type HTTP header
 (text/html, charset UTF-8) before any other output.
 
 **The option -a** can be used to pass a string to *prepend* to the content of
@@ -139,7 +135,7 @@ the ``main()`` function. In ``bash``, it could be like this::
 
     nanabozo -a $'int main(void) {\n' -z $'\n\treturn 0;\n}' helloworld.php helloworld.c
     # note that is equivalent to:
-    nanabozo --main helloworld.php helloworld.c
+    nanabozo -m helloworld.php helloworld.c
 
 You could however make things even worse::
 
