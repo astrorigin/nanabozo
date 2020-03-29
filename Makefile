@@ -8,7 +8,7 @@ DESTDIR = /usr/local
 INPUTSIZE = 512
 
 ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
-		   nanabozo.1 nanabozo.c test
+		   debian nanabozo.1 nanabozo.c test
 
 .PHONY: all clean distclean install srcpack uninstall
 
