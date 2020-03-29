@@ -1,53 +1,54 @@
 # nanabozo Makefile
 
-TARGET = nanabozo
+NAME = nanabozo
 VERSION = 0.1-alpha
 CC = cc
 CFLAGS = -g -Wall -O3
-PREFIX = /usr/local
+DESTDIR = /usr/local
 INPUTSIZE = 512
 
-ALLFILES = test CMakeLists.txt LICENSE.txt Makefile README.rst \
-		   nanabozo.1 nanabozo.c
+ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
+		   nanabozo.1 nanabozo.c test
+
+.PHONY: all clean distclean install srcpack uninstall
 
 .DEFAULT_GOAL := all
 
-$(TARGET): nanabozo.c
+$(NAME): nanabozo.c
 	$(CC) $(CFLAGS) -DINPUTSIZE=$(INPUTSIZE) -o $@ $<
 
-$(PREFIX)/bin:
+$(DESTDIR)/bin:
 	mkdir -p $@
 
-$(PREFIX)/bin/$(TARGET): $(PREFIX)/bin $(TARGET)
-	cp -f $(TARGET) $<
+$(DESTDIR)/bin/$(NAME): $(DESTDIR)/bin $(NAME)
+	cp -f $(NAME) $<
 
-$(PREFIX)/share/man/man1:
+$(DESTDIR)/share/man/man1:
 	mkdir -p $@
 
-$(TARGET).1.gz: nanabozo.1
+$(NAME).1.gz: nanabozo.1
 	gzip -c $< > $@
 
-$(PREFIX)/share/man/man1/$(TARGET).1.gz: $(PREFIX)/share/man/man1 $(TARGET).1.gz
-	cp -f $(TARGET).1.gz $<
+$(DESTDIR)/share/man/man1/$(NAME).1.gz: $(DESTDIR)/share/man/man1 $(NAME).1.gz
+	cp -f $(NAME).1.gz $<
 
-$(TARGET)-$(VERSION).tar.xz: $(ALLFILES)
-	mkdir $(TARGET)-$(VERSION)
-	cp -r $(ALLFILES) $(TARGET)-$(VERSION)
-	tar --remove-files -cJf $(TARGET)-$(VERSION).tar.xz $(TARGET)-$(VERSION)
+$(NAME)-$(VERSION).tar.xz: $(ALLFILES)
+	mkdir $(NAME)-$(VERSION)
+	cp -r $(ALLFILES) $(NAME)-$(VERSION)
+	tar --remove-files -cJf $(NAME)-$(VERSION).tar.xz $(NAME)-$(VERSION)
 
-.PHONY: all clean install uninstall srcpack
+all: $(NAME) $(NAME).1.gz
 
-all: $(TARGET) $(TARGET).1.gz
+clean: distclean
+distclean:
+	rm -rf $(NAME) $(NAME).1.gz $(NAME)-*.tar.xz
 
-clean:
-	rm -f $(TARGET) $(TARGET).1.gz
+install: $(DESTDIR)/bin/$(NAME) $(DESTDIR)/share/man/man1/$(NAME).1.gz
 
-install: $(PREFIX)/bin/$(TARGET) $(PREFIX)/share/man/man1/$(TARGET).1.gz
+srcpack: $(NAME)-$(VERSION).tar.xz
 
 uninstall:
-	rm -f $(PREFIX)/bin/$(TARGET)
-	rm -f $(PREFIX)/share/man/man1/$(TARGET).1.gz
-
-srcpack: $(TARGET)-$(VERSION).tar.xz
+	rm -f $(DESTDIR)/bin/$(NAME)
+	rm -f $(DESTDIR)/share/man/man1/$(NAME).1.gz
 
 # vi: sw=4 ts=4 noet

@@ -4,6 +4,14 @@ nanabozo
 nanabozo.1.gz
 nanabozo-*.tar.xz
 
+/debian/*
+!/debian/changelog
+!/debian/compat
+!/debian/control
+!/debian/copyright
+!/debian/dirs
+!/debian/rules
+
 # sub directories
 bld*
 build*
