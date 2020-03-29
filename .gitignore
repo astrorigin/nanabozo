@@ -2,6 +2,7 @@
 
 nanabozo
 nanabozo.1.gz
+nanabozo-*.tar.xz
 
 # sub directories
 bld*
