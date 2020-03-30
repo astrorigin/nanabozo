@@ -27,7 +27,7 @@ $(DESTDIR)/share/man/man1:
 	mkdir -p $@
 
 $(NAME).1.gz: nanabozo.1
-	gzip -c $< > $@
+	gzip -9 -c $< > $@
 
 $(DESTDIR)/share/man/man1/$(NAME).1.gz: $(DESTDIR)/share/man/man1 $(NAME).1.gz
 	cp -f $(NAME).1.gz $<
