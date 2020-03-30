@@ -8,7 +8,10 @@ DESTDIR = /usr/local
 INPUTSIZE = 512
 
 ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
-		   debian nanabozo.1 nanabozo.c test
+		   debian examples nanabozo.1 nanabozo.c
+
+export DESTDIR
+export NAME
 
 .PHONY: all clean distclean install srcpack uninstall
 
@@ -32,6 +35,12 @@ $(NAME).1.gz: nanabozo.1
 $(DESTDIR)/share/man/man1/$(NAME).1.gz: $(DESTDIR)/share/man/man1 $(NAME).1.gz
 	cp -f $(NAME).1.gz $<
 
+$(DESTDIR)/share/doc/$(NAME):
+	mkdir -p $@
+
+$(DESTDIR)/share/doc/$(NAME)/README.rst: $(DESTDIR)/share/doc/$(NAME) README.rst
+	cp -f README.rst $<
+
 $(NAME)-$(VERSION).tar.xz: $(ALLFILES)
 	mkdir $(NAME)-$(VERSION)
 	cp -r $(ALLFILES) $(NAME)-$(VERSION)
@@ -43,12 +52,15 @@ clean: distclean
 distclean:
 	rm -rf $(NAME) $(NAME).1.gz $(NAME)-*.tar.xz
 
-install: $(DESTDIR)/bin/$(NAME) $(DESTDIR)/share/man/man1/$(NAME).1.gz
+install: $(DESTDIR)/bin/$(NAME) $(DESTDIR)/share/man/man1/$(NAME).1.gz \
+	$(DESTDIR)/share/doc/$(NAME)/README.rst
+	cd examples && $(MAKE) install
 
 srcpack: $(NAME)-$(VERSION).tar.xz
 
 uninstall:
 	rm -f $(DESTDIR)/bin/$(NAME)
+	rm -rf $(DESTDIR)/share/doc/$(NAME)
 	rm -f $(DESTDIR)/share/man/man1/$(NAME).1.gz
 
 # vi: sw=4 ts=4 noet
