@@ -13,9 +13,9 @@ ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
 export DESTDIR
 export NAME
 
-.PHONY: all clean distclean install srcpack uninstall
+.PHONY: build clean distclean install srcpack uninstall
 
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := build
 
 $(NAME): nanabozo.c
 	$(CC) $(CFLAGS) -DINPUTSIZE=$(INPUTSIZE) -o $@ $<
@@ -50,7 +50,7 @@ $(NAME)-$(VERSION).tar.xz: $(ALLFILES)
 	cp -r $(ALLFILES) $(NAME)-$(VERSION)
 	tar --remove-files -cJf $(NAME)-$(VERSION).tar.xz $(NAME)-$(VERSION)
 
-all: $(NAME) $(NAME).1.gz
+build: $(NAME)
 
 clean: distclean
 distclean:
