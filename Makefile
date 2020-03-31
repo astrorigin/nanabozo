@@ -38,8 +38,11 @@ $(DESTDIR)/share/man/man1/$(NAME).1.gz: $(DESTDIR)/share/man/man1 $(NAME).1.gz
 $(DESTDIR)/share/doc/$(NAME):
 	mkdir -p $@
 
-$(DESTDIR)/share/doc/$(NAME)/README.rst: $(DESTDIR)/share/doc/$(NAME) README.rst
-	cp -f README.rst $<
+README.rst.gz: README.rst
+	gzip -9 -c $< > $@
+
+$(DESTDIR)/share/doc/$(NAME)/README.rst.gz: $(DESTDIR)/share/doc/$(NAME) README.rst.gz
+	cp -f README.rst.gz $<
 
 $(NAME)-$(VERSION).tar.xz: $(ALLFILES)
 	mkdir $(NAME)-$(VERSION)
@@ -50,10 +53,10 @@ all: $(NAME) $(NAME).1.gz
 
 clean: distclean
 distclean:
-	rm -rf $(NAME) $(NAME).1.gz $(NAME)-*.tar.xz
+	rm -rf $(NAME) $(NAME).1.gz $(NAME)-*.tar.xz README.rst.gz
 
 install: $(DESTDIR)/bin/$(NAME) $(DESTDIR)/share/man/man1/$(NAME).1.gz \
-	$(DESTDIR)/share/doc/$(NAME)/README.rst
+	$(DESTDIR)/share/doc/$(NAME)/README.rst.gz
 	cd examples && $(MAKE) install
 
 srcpack: $(NAME)-$(VERSION).tar.xz
