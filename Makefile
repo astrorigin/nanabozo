@@ -19,6 +19,7 @@ export NAME
 
 $(NAME): nanabozo.c
 	$(CC) $(CFLAGS) -DINPUTSIZE=$(INPUTSIZE) -o $@ $<
+	strip --strip-unneeded --remove-section=.comment --remove-section=.note $@
 
 $(DESTDIR)/bin:
 	mkdir -p $@
