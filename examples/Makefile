@@ -3,7 +3,7 @@
 NAME = nanabozo
 DESTDIR = /usr/local
 
-ALLEXAMPLES = MemStream.cxx basic.php buffered_output.php function.php
+ALLEXAMPLES = Makefile.ex MemStream.cxx basic.php buffered_output.php function.php
 
 .DEFAULT_GOAL := void
 
