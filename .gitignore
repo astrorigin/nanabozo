@@ -13,6 +13,10 @@ nanabozo-*.tar.xz
 !/debian/dirs
 !/debian/rules
 
+/examples/*.c
+/examples/*.cgi
+/examples/*.cpp
+
 # sub directories
 bld*
 build*
