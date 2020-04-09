@@ -456,6 +456,9 @@ int main(int argc, char *argv[])
             stop2("unable to open '%s' for writing", _m_output_file);
         }
     }
+    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0) {
+        stop("unable to reset buffering");
+    }
     /* check we got function names */
     if (!_m_print) {
         _m_print = "print";
