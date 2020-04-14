@@ -466,7 +466,9 @@ int main(int argc, char *argv[])
     }
     else if (*_m_comment) {
         /* print user comment */
-        fprintf(stdout, "/*\n%s\n*/\n", _m_comment);
+        if (fprintf(stdout, "/*\n%s\n*/\n", _m_comment) < 0) {
+            stop("lost stdout");
+        }
     }
     if (!_print_given) {
         /* define print(x) */
@@ -482,7 +484,9 @@ int main(int argc, char *argv[])
     }
     if (_m_prefix && *_m_prefix) {
         /* print prefix string */
-        fprintf(stdout, "%s\n", _m_prefix);
+        if (fprintf(stdout, "%s\n", _m_prefix) < 0) {
+            stop("lost stdout");
+        }
     }
     if (_do_mainfunc) {
         if (fputs(MAINFUNC_START, stdout) == EOF) {
@@ -516,7 +520,9 @@ int main(int argc, char *argv[])
     }
     if (_m_suffix && *_m_suffix) {
         /* print suffix string */
-        fprintf(stdout, "%s\n", _m_suffix);
+        if (fprintf(stdout, "%s\n", _m_suffix)) {
+            stop("lost stdout");
+        }
     }
     return EXIT_SUCCESS;
 }
@@ -674,7 +680,9 @@ void bufout( void )
             }
         }
         /* transfer buffer to stdout */
-        fprintf(stdout, "\n%s(\"", _m_print);
+        if (fprintf(stdout, "\n%s(\"", _m_print) < 0) {
+            stop("lost stdout");
+        }
         for (; *p; p++) {
             switch (*p) {
             case '\\':
@@ -816,8 +824,10 @@ void c_dquote_start( struct match *mt )
 }
 void c_end( struct match *mt )
 {
-    if (!_no_comments) {
-        fprintf(stdout, "/* END C (line %lu) */", _lineno);
+    if (!_no_comments
+        && fprintf(stdout, "/* END C (line %lu) */", _lineno) < 0)
+    {
+        stop("lost stdout");
     }
     _q += mt->len;
     _q_len -= mt->len;
@@ -855,8 +865,10 @@ void c_squote_start( struct match *mt )
 void c_start( struct match *mt )
 {
     bufout();
-    if (!_no_comments) {
-        fprintf(stdout, "/* BEGIN C (line %lu) */\n", _lineno);
+    if (!_no_comments
+        && fprintf(stdout, "/* BEGIN C (line %lu) */\n", _lineno) < 0)
+    {
+        stop("lost stdout");
     }
     _q += mt->len;
     _q_len -= mt->len;
@@ -866,27 +878,35 @@ void c_start( struct match *mt )
 void c_print_format_start( struct match *mt )
 {
     bufout();
-    if (!_no_comments) {
-        fprintf(stdout, "/* BEGIN C%% (line %lu) */\n", _lineno);
+    if (!_no_comments
+        && fprintf(stdout, "/* BEGIN C%% (line %lu) */\n", _lineno) < 0)
+    {
+        stop("lost stdout");
     }
     _q += mt->len;
     _q_len -= mt->len;
     eat_c_print_format();
-    if (!_no_comments) {
-        fprintf(stdout, "\n/* END C%% (line %lu) */", _lineno);
+    if (!_no_comments
+        && fprintf(stdout, "\n/* END C%% (line %lu) */", _lineno) < 0)
+    {
+        stop("lost stdout");
     }
 }
 void c_print_start( struct match *mt )
 {
     bufout();
-    if (!_no_comments) {
-        fprintf(stdout, "/* BEGIN C= (line %lu) */\n", _lineno);
+    if (!_no_comments
+        && fprintf(stdout, "/* BEGIN C= (line %lu) */\n", _lineno) < 0)
+    {
+        stop("lost stdout");
     }
     _q += mt->len;
     _q_len -= mt->len;
     eat_c_print_string();
-    if (!_no_comments) {
-        fprintf(stdout, "\n/* END C= (line %lu) */", _lineno);
+    if (!_no_comments
+        && fprintf(stdout, "\n/* END C= (line %lu) */", _lineno) < 0)
+    {
+        stop("lost stdout");
     }
 }
 void html_comment_start( struct match *mt )
@@ -1057,7 +1077,9 @@ void eat_c_macro( void )
 void eat_c_print_format( void )
 {
     int i, j = 0;
-    fprintf(stdout, "%s(", _m_printf);
+    if (fprintf(stdout, "%s(", _m_printf) < 0) {
+        stop("lost stdout");
+    }
     while (j || (i = cursor()) != EOF) {
         if (j) {
             i = j;
@@ -1095,7 +1117,9 @@ void eat_c_print_format( void )
 void eat_c_print_string( void )
 {
     int i, j = 0;
-    fprintf(stdout, "%s(", _m_print);
+    if (fprintf(stdout, "%s(", _m_print) < 0) {
+        stop("lost stdout");
+    }
     while (j || (i = cursor()) != EOF) {
         if (j) {
             i = j;
