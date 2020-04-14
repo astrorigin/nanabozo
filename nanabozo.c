@@ -353,69 +353,49 @@ int main(int argc, char *argv[])
         /* "z:c:htmna:p:f:v" */
         switch (c) {
         case 'z':
-            {
-                _m_suffix = optarg;
-                break;
-            }
+            _m_suffix = optarg;
+            break;
         case 'c':
-            {
-                _m_comment = optarg;
-                break;
-            }
+            _m_comment = optarg;
+            break;
         case 'h':
-            {
-                if (fputs(_usage, stdout) == EOF) {
-                    stop("lost stdout");
-                }
-                exit(EXIT_SUCCESS);
+            if (fputs(_usage, stdout) == EOF) {
+                stop("lost stdout");
             }
+            exit(EXIT_SUCCESS);
         case 't':
-            {
-                _do_send_headers = 1;
-                break;
-            }
+            _do_send_headers = 1;
+            break;
         case 'm':
-            {
-                _do_mainfunc = 1;
-                break;
-            }
+            _do_mainfunc = 1;
+            break;
         case 'n':
-            {
-                _no_comments = 1;
-                break;
-            }
+            _no_comments = 1;
+            break;
         case 'a':
-            {
-                _m_prefix = optarg;
-                break;
-            }
+            _m_prefix = optarg;
+            break;
         case 'p':
-            {
-                _m_print = optarg;
-                if (!valid_identifier(_m_print)) {
-                    stop2("invalid identifier '%s'", _m_print);
-                }
-                _print_given = 1;
-                break;
+            _m_print = optarg;
+            if (!valid_identifier(_m_print)) {
+                stop2("invalid identifier '%s'", _m_print);
             }
+            _print_given = 1;
+            break;
         case 'f':
-            {
-                _m_printf = optarg;
-                if (!valid_identifier(_m_printf)) {
-                    stop2("invalid identifier '%s'", _m_printf);
-                }
-                _printf_given = 1;
-                break;
+            _m_printf = optarg;
+            if (!valid_identifier(_m_printf)) {
+                stop2("invalid identifier '%s'", _m_printf);
             }
+            _printf_given = 1;
+            break;
         case 'v':
+            if (fputs(_version, stdout) == EOF
+                || fprintf(stdout, COMPILED_WITH, INPUTSIZE) < 0)
             {
-                if (fputs(_version, stdout) == EOF
-                    || fprintf(stdout, COMPILED_WITH, INPUTSIZE) < 0)
-                {
-                    stop("lost stdout");
-                }
-                exit(EXIT_SUCCESS);
+                stop("lost stdout");
             }
+            exit(EXIT_SUCCESS);
         default:
             /* error raised by getopt */
             exit(EXIT_FAILURE);
