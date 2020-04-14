@@ -116,7 +116,7 @@ void proceed( void );
 size_t read_input( void );
 struct match *context_match( void );
 void reset_context( struct match *mt );
-int check_identifier( const char* id );
+int valid_identifier( const char* id );
 int valid_filepath( const char* fpath );
 
 void bufwrite( const char *s, const size_t len );
@@ -392,12 +392,18 @@ int main(int argc, char *argv[])
         case 'p':
             {
                 _m_print = optarg;
+                if (!valid_identifier(_m_print)) {
+                    stop2("invalid identifier '%s'", _m_print);
+                }
                 _print_given = 1;
                 break;
             }
         case 'f':
             {
                 _m_printf = optarg;
+                if (!valid_identifier(_m_printf)) {
+                    stop2("invalid identifier '%s'", _m_printf);
+                }
                 _printf_given = 1;
                 break;
             }
@@ -611,9 +617,11 @@ void reset_context( struct match *mt )
         mt->p = NULL;
     }
 }
-int check_identifier( const char* id )
+int valid_identifier( const char* id )
 {
-    if (!id || !*id || !strchr(NONDIGIT CPPSPECIAL, *id++)) {
+    if (!id || !*id || strlen(id) >= 256
+        || !strchr(NONDIGIT CPPSPECIAL, *id++))
+    {
         return 0;
     }
     for (; *id; id++) {
