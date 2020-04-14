@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
             stop2("unable to open '%s' for reading", _m_input_file);
         }
     }
-    if (_m_output_file != NULL) {
+    if (_m_output_file) {
         if (!freopen(_m_output_file, "w", stdout)) {
             stop2("unable to open '%s' for writing", _m_output_file);
         }
