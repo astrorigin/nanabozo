@@ -117,7 +117,7 @@ size_t read_input( void );
 struct match *context_match( void );
 void reset_context( struct match *mt );
 int check_identifier( const char* id );
-int check_filepath( const char* fpath );
+int valid_filepath( const char* fpath );
 
 void bufwrite( const char *s, const size_t len );
 void bufout( void );
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
         if (!strcmp(_m_input_file, "-")) {
             _m_input_file = NULL;
         }
-        else if (!check_filepath(_m_input_file)) {
+        else if (!valid_filepath(_m_input_file)) {
             stop2("invalid argument '%s'", _m_input_file);
         }
     }
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
         if (!strcmp(_m_output_file, "-")) {
             _m_output_file = NULL;
         }
-        else if (!check_filepath(_m_output_file)) {
+        else if (!valid_filepath(_m_output_file)) {
             stop2("invalid argument '%s'", _m_output_file);
         }
     }
@@ -623,9 +623,9 @@ int check_identifier( const char* id )
     }
     return 1;
 }
-int check_filepath( const char* fpath )
+int valid_filepath( const char* fpath )
 {
-    if (!fpath || !*fpath || *fpath == '-') {
+    if (!fpath || !*fpath || *fpath == '-' || strlen(fpath) >= 4096) {
         return 0;
     }
     for (; *fpath; fpath++) {
