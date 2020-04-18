@@ -11,7 +11,7 @@ Vcs-Browser: https://github.com/astrorigin/nanabozo
 Package: nanabozo
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: A tool for CHTML script-coding
+Description: Tool for CHTML script-coding
  nanabozo is a command-line application that translates CHTML scripts into
  C/C++ code. In other terms, it lets you mix HTML (or equivalent) with C/C++,
  like you would with PHP.
