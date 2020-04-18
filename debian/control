@@ -12,5 +12,6 @@ Package: nanabozo
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: A tool for CHTML script-coding
- nanabozo is a command-line application that translates CHTML scripts into pure C code.
- In other terms, it lets you mix HTML (or equivalent) with C/C++, like you would with PHP.
+ nanabozo is a command-line application that translates CHTML scripts into
+ C/C++ code. In other terms, it lets you mix HTML (or equivalent) with C/C++,
+ like you would with PHP.
