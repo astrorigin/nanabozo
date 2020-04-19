@@ -166,6 +166,15 @@ you can recompile with ``INPUTSIZE`` defined with a higher value.
 
 And if you find a bug or anything problematic, please contact ``stan(at)astrorigin.com``.
 
+Installation
+============
+
+Simply::
+
+    make install-all
+
+A package for Debian systems should be found on Github and homepage.
+
 License
 =======
 ``nanabozo`` is licensed under the GPL v2 license::

@@ -13,7 +13,8 @@ ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
 export DESTDIR
 export NAME
 
-.PHONY: build clean distclean install srcpack uninstall
+.PHONY: build clean distclean install install-all install-doc \
+	install-ex install-man srcpack uninstall
 
 .DEFAULT_GOAL := build
 
@@ -56,9 +57,16 @@ clean: distclean
 distclean:
 	rm -rf $(NAME) $(NAME).1.gz $(NAME)-*.tar.xz README.rst.gz
 
-install: $(DESTDIR)/bin/$(NAME) $(DESTDIR)/share/man/man1/$(NAME).1.gz \
-	$(DESTDIR)/share/doc/$(NAME)/README.rst.gz
+install: $(DESTDIR)/bin/$(NAME)
+
+install-doc: $(DESTDIR)/share/doc/$(NAME)/README.rst.gz
+
+install-ex:
 	cd examples && $(MAKE) install
+
+install-man: $(DESTDIR)/share/man/man1/$(NAME).1.gz
+
+install-all: install install-doc install-ex install-man
 
 srcpack: $(NAME)-$(VERSION).tar.xz
 
