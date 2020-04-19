@@ -1,0 +1,6 @@
+examples/Makefile.ex
+examples/MemStream.cxx
+examples/basic.php
+examples/buffered_output.php
+examples/function.php
+
