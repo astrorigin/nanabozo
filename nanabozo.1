@@ -200,7 +200,7 @@ Our simple example could be rewritten without the definition of the
 main() function. In bash, you could:
 .IP
 .nf
-nanabozo \-a $'int main(void) {\\n' \-z $'\n\treturn 0;\\n}' helloworld.php helloworld.c
+nanabozo \-a $'int main(void) {\\n' \-z $'\\n\\treturn 0;\\n}' helloworld.php helloworld.c
 # note that is equivalent to:
 nanabozo \-\-main helloworld.php helloworld.c
 .fi
