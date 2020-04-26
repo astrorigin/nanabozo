@@ -1,5 +1,7 @@
 # nanabozo:CMakeLists.txt
 
+# This file should in fact only be used on Weirdoze.
+
 cmake_minimum_required( VERSION 3.10 )
 project( nanabozo )
 
