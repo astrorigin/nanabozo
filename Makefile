@@ -8,7 +8,7 @@ DESTDIR = /usr/local
 INPUTSIZE = 512
 
 ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
-		   examples nanabozo.1 nanabozo.c
+		   debian examples nanabozo.1 nanabozo.c
 
 export DESTDIR
 export NAME
