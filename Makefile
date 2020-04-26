@@ -1,7 +1,7 @@
 # nanabozo Makefile
 
 NAME = nanabozo
-VERSION = 0.1~alpha
+VERSION = 0.1-alpha
 CC = cc
 CFLAGS = -g -Wall -O3
 DESTDIR = /usr/local
