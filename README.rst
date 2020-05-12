@@ -179,7 +179,7 @@ License
 =======
 ``nanabozo`` is licensed under the GPL v2 license::
 
-    nanabozo - a tool for CHTML script-coding.
+    nanabozo - tool for CHTML script-coding
     Copyright (C) 2018-2020 Stanislas Marquis <stan@astrorigin.com>
 
     This program is free software: you can redistribute it and/or modify

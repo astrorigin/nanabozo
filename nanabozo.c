@@ -1,5 +1,5 @@
 /*
-    nanabozo - a tool for CHTML script-coding.
+    nanabozo - tool for CHTML script-coding
     Copyright (C) 2018-2020 Stanislas Marquis <stan@astrorigin.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@
 
 static const char _usage[] =
 "\n"
-"nanabozo - a tool for CHTML script-coding\n"
+"nanabozo - tool for CHTML script-coding\n"
 "\n"
 "    Copyright (C) 2018-2020 Stanislas Marquis <stan@astrorigin.com>\n"
 "\n"
@@ -85,7 +85,7 @@ static const char _usage[] =
 
 static const char _version[] =
 "\n"
-"nanabozo - a tool for CHTML script-coding (" VERSION_STR ")\n"
+"nanabozo - tool for CHTML script-coding (" VERSION_STR ")\n"
 "\n"
 "    Copyright (C) 2018-2020 Stanislas Marquis <stan@astrorigin.com>.\n"
 "\n"
