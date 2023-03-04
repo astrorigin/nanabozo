@@ -1,9 +1,16 @@
 # nanabozo Makefile
 
+# debug build:  NDEBUG=0 make -e
+
 NAME = nanabozo
 VERSION = 0.1-alpha
+NDEBUG ?= 1
 CC = cc
-CFLAGS = -g -Wall -O3
+ifeq ($(NDEBUG),1)
+CFLAGS = -Wall -Wextra -O3
+else
+CFLAGS = -g -Og -Wall -Wextra -fsanitize=address -fno-omit-frame-pointer
+endif
 DESTDIR = /usr/local
 INPUTSIZE = 512
 
@@ -13,14 +20,16 @@ ALLFILES = CMakeLists.txt LICENSE.txt Makefile README.rst \
 export DESTDIR
 export NAME
 
-.PHONY: build clean distclean install install-all install-doc \
+.PHONY: build clean distclean re install install-all install-doc \
 	install-ex install-man srcpack uninstall
 
 .DEFAULT_GOAL := build
 
 $(NAME): nanabozo.c
 	$(CC) $(CFLAGS) -DINPUTSIZE=$(INPUTSIZE) -o $@ $<
+ifeq ($(NDEBUG),1)
 	strip --strip-unneeded --remove-section=.comment --remove-section=.note $@
+endif
 
 $(DESTDIR)/bin:
 	mkdir -p $@
@@ -48,8 +57,9 @@ $(DESTDIR)/share/doc/$(NAME)/README.rst.gz: $(DESTDIR)/share/doc/$(NAME) README.
 
 $(NAME)-$(VERSION).tar.xz: $(ALLFILES)
 	mkdir $(NAME)-$(VERSION)
-	cp -r $(ALLFILES) $(NAME)-$(VERSION)
+	cp -rf $(ALLFILES) $(NAME)-$(VERSION)
 	tar --remove-files -cJf $(NAME)-$(VERSION).tar.xz $(NAME)-$(VERSION)
+	rm -rf $(NAME)-$(VERSION)
 
 build: $(NAME)
 
@@ -57,12 +67,14 @@ clean: distclean
 distclean:
 	rm -rf $(NAME) $(NAME).1.gz $(NAME)-*.tar.xz README.rst.gz
 
+re: clean build
+
 install: $(DESTDIR)/bin/$(NAME)
 
 install-doc: $(DESTDIR)/share/doc/$(NAME)/README.rst.gz
 
 install-ex:
-	cd examples && $(MAKE) install
+	$(MAKE) -C examples install
 
 install-man: $(DESTDIR)/share/man/man1/$(NAME).1.gz
 

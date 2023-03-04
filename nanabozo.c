@@ -793,7 +793,7 @@ int cursor( void )
 }
 void c_fallback( const char *eol )
 {
-    const size_t sz = eol ? eol - _q : _q_len;
+    const size_t sz = eol ? (size_t) (eol - _q) : _q_len;
     assert(*_q && sz);
     write(_q, sz);
     _q += sz;
@@ -801,7 +801,7 @@ void c_fallback( const char *eol )
 }
 void html_fallback( const char *eol )
 {
-    const size_t sz = eol ? eol - _q : _q_len;
+    const size_t sz = eol ? (size_t) (eol - _q) : _q_len;
     assert(*_q && sz);
     bufwrite(_q, sz);
     _q += sz;
@@ -809,10 +809,12 @@ void html_fallback( const char *eol )
 }
 void bad_tag_end( struct match *mt )
 {
+    (void) mt;
     stop("special char '>' => '&gt;' ?");
 }
 void bad_tag_start( struct match *mt )
 {
+    (void) mt;
     stop("special char '<' => '&lt;' ?");
 }
 void c_dquote_start( struct match *mt )
@@ -1053,6 +1055,7 @@ void eat_c_macro( void )
             switch ((j = cursor())) {
             case EOF:
                 stop("eof while scanning C macro");
+                return;
             case '*':
                 /* ml comment begins */
                 write("/*", 2);
@@ -1101,6 +1104,7 @@ void eat_c_print_format( void )
             switch ((j = cursor())) {
             case EOF:
                 stop("eof while scanning C print-formatted arguments");
+                return;
             case '>':
                 /* end tag */
                 write(");", 2);
@@ -1140,6 +1144,7 @@ void eat_c_print_string( void )
             switch ((j = cursor())) {
             case EOF:
                 stop("eof while scanning C print-string arguments");
+                return;
             case '>':
                 /* end tag */
                 write(");", 2);

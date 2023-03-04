@@ -11,7 +11,7 @@ add_definitions( -DINPUTSIZE=${INPUTSIZE} )
 if ( WIN32 )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS )
 else()
-  add_definitions( -g -Wall -O3 )
+  add_definitions( -Wall -Wextra -O3 )
 endif()
 
 add_executable( nanabozo nanabozo.c )
